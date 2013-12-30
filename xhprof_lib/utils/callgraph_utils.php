@@ -22,11 +22,12 @@
 
 // Supported ouput format
 $xhprof_legal_image_types = array(
-    "jpg" => 1,
-    "gif" => 1,
-    "png" => 1,
-    "ps"  => 1,
-    );
+	"svg" => 1,
+	"jpg" => 1,
+	"gif" => 1,
+	"png" => 1,
+	"ps"  => 1,
+);
 
 /**
  * Send an HTTP header with the response. You MUST use this function instead
@@ -68,6 +69,9 @@ function xhprof_generate_mime_header($type, $length) {
     case 'png':
       $mime = 'image/png';
       break;
+    case 'svg':
+      $mime = 'image/svg+xml';
+      break;
     case 'ps':
       $mime = 'application/postscript';
     default:
@@ -96,17 +100,17 @@ function xhprof_generate_mime_header($type, $length) {
 function xhprof_generate_image_by_dot($dot_script, $type) {
   // get config => yep really dirty - but unobstrusive
   global $_xhprof;
-  
+
   $errorFile    = $_xhprof['dot_errfile'];
   $tmpDirectory = $_xhprof['dot_tempdir'];
   $dotBinary    = $_xhprof['dot_binary'];
- 
+
   // detect windows
   if (stristr(PHP_OS, 'WIN') && !stristr(PHP_OS, 'Darwin')) {
-    return xhprof_generate_image_by_dot_on_win($dot_script, 
-                                               $type, 
-                                               $errorFile, 
-                                               $tmpDirectory, 
+    return xhprof_generate_image_by_dot_on_win($dot_script,
+                                               $type,
+                                               $errorFile,
+                                               $tmpDirectory,
                                                $dotBinary);
   }
 
@@ -149,10 +153,10 @@ function xhprof_generate_image_by_dot($dot_script, $type) {
 }
 
 /**
- * Generate image according to DOT script. This function will make the 
+ * Generate image according to DOT script. This function will make the
  * process working on windows boxes (some win-boxes seems to having problems
- * with creating processes via proc_open so we do it the lame win way by 
- * creating and writing to temp-files and reading them in again ... 
+ * with creating processes via proc_open so we do it the lame win way by
+ * creating and writing to temp-files and reading them in again ...
  * not really nice but functional
  *
  * @param dot_script, string, the script for DOT to generate the image.
@@ -164,10 +168,10 @@ function xhprof_generate_image_by_dot($dot_script, $type) {
  *
  * @author Benjamin Carl <opensource@clickalicious.de>
  */
-function xhprof_generate_image_by_dot_on_win($dot_script, 
-                                             $type, 
-                                             $errorFile, 
-                                             $tmpDirectory, 
+function xhprof_generate_image_by_dot_on_win($dot_script,
+                                             $type,
+                                             $errorFile,
+                                             $tmpDirectory,
                                              $dotBin
 ) {
   // assume no error
@@ -190,11 +194,11 @@ function xhprof_generate_image_by_dot_on_win($dot_script,
 
   // 2. call dot-binary with temp dot script and write file (out) type
   shell_exec($cmd);
-  
+
   // 3. read in the img
   $output = file_get_contents($files['img']);
-  if ($output == '' 
-      || !file_exists($files['img']) 
+  if ($output == ''
+      || !file_exists($files['img'])
       || filesize($files['img']) == 0
   ) {
     $error = true;
@@ -529,7 +533,7 @@ function xhprof_get_content_by_run($xhprof_runs_impl, $run_id, $type,
 
   $script = xhprof_generate_dot_script($raw_data, $threshold, $source,
                                        $description, $func, $critical_path);
-                    
+
   $content = xhprof_generate_image_by_dot($script, $type);
   return $content;
 }
